@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ospedale</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="box">
+        <h2>Gestione ospedaliero</h2>
+        <h3>Macchinari</h3>
+        <!-- Form per l'aggiunta di un nuovo macchinario -->
+        <form id="aggiungiMacchinarioForm">
+            <label for="nome">Nome Macchinario:</label>
+            <input type="text" id="nome" name="nome" required>
+            <label for="matricola">Matricola:</label>
+            <input type="text" id="matricola" name="matricola" required>
+            <label for="reparto">Reparto di Utilizzo:</label>
+            <input type="text" id="reparto" name="reparto">
+            <label for="data_acquisto">Data Acquisto:</label>
+            <input type="date" id="data_acquisto" name="data_acquisto">
+            <label for="stato_manutenzione">Stato Manutenzione:</label>
+            <select id="stato_manutenzione" name="stato_manutenzione">
+                <option value="in_manutenzione">In Manutenzione</option>
+                <option value="funzionante">Funzionante</option>
+                <option value="non_funzionante">Non Funzionante</option>
+            </select>
+            <label for="fornitore">Fornitore:</label>
+            <input type="text" id="fornitore" name="fornitore">
+            <label for="ultima_manutenzione">Ultima Manutenzione:</label>
+            <input type="date" id="ultima_manutenzione" name="ultima_manutenzione">
+            <button type="submit" id="submit">Aggiungi</button>
+        </form>
+        <!-- Tabella per visualizzare i macchinari -->
+        
+    <script src="script3.js"></script>
+</body>
+</html>

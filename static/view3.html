@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Ospedale</title>
+</head>
+<body>
+    <h2>Lista Macchinari</h2>
+        <table id="Table">
+            <thead>
+                <tr>
+                    <th>Nome Macchinario</th>
+                    <th>Matricola</th>
+                    <th>Reparto di Utilizzo</th>
+                    <th>Data Acquisto</th>
+                    <th>Stato Manutenzione</th>
+                    <th>Fornitore</th>
+                    <th>Ultima Manutenzione</th>
+                    <th>Modifica</th>
+                    <th>Elimina</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Qui verranno aggiunti dinamicamente i macchinari -->
+            </tbody>
+        </table>
+
+        <!-- Form per la modifica di un macchinario -->
+        <div id="modificaMacchinarioModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Modifica Macchinario</h2>
+                <form id="modificaMacchinarioForm">
+                    <label for="modifica_nome">Nome Macchinario:</label>
+                    <input type="text" id="modifica_nome" name="modifica_nome" required><br>
+                    <label for="modifica_matricola">Matricola:</label>
+                    <input type="text" id="modifica_matricola" name="modifica_matricola" required><br>
+                    <label for="modifica_reparto">Reparto di Utilizzo:</label>
+                    <input type="text" id="modifica_reparto" name="modifica_reparto"><br>
+                    <label for="modifica_data_acquisto">Data Acquisto:</label>
+                    <input type="date" id="modifica_data_acquisto" name="modifica_data_acquisto"><br>
+                    <label for="modifica_stato_manutenzione">Stato Manutenzione:</label>
+                    <select id="modifica_stato_manutenzione" name="modifica_stato_manutenzione">
+                        <option value="in_manutenzione">In Manutenzione</option>
+                        <option value="funzionante">Funzionante</option>
+                        <option value="non_funzionante">Non Funzionante</option>
+                    </select>
+                    <label for="modifica_fornitore">Fornitore:</label>
+                    <input type="text" id="modifica_fornitore" name="modifica_fornitore"><br>
+                    <label for="modifica_ultima_manutenzione">Ultima Manutenzione:</label>
+                    <input type="date" id="modifica_ultima_manutenzione" name="modifica_ultima_manutenzione"><br>
+                    <button type="submit" id="submitModifica">Salva Modifiche</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function aggiungiMacchinarioAllaTabella(macchinario) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const row = table.insertRow(-1);
+
+        const cellNome = row.insertCell(0);
+        cellNome.textContent = macchinario.nome;
+
+        const cellMatricola = row.insertCell(1);
+        cellMatricola.textContent = macchinario.matricola;
+
+        const cellReparto = row.insertCell(2);
+        cellReparto.textContent = macchinario.reparto;
+
+        const cellDataAcquisto = row.insertCell(3);
+        cellDataAcquisto.textContent = macchinario.data_acquisto;
+
+        const cellStatoManutenzione = row.insertCell(4);
+        cellStatoManutenzione.textContent = macchinario.stato_manutenzione;
+
+        const cellFornitore = row.insertCell(5);
+        cellFornitore.textContent = macchinario.fornitore;
+
+        const cellUltimaManutenzione = row.insertCell(6);
+        cellUltimaManutenzione.textContent = macchinario.ultima_manutenzione;
+
+        const cellModifica = row.insertCell(7);
+        const editButton = document.createElement('img');
+        editButton.textContent = 'Modifica';
+        editButton.src = 'pen.png';
+        editButton.className = 'edit-button';
+        editButton.setAttribute('data-macchinario-id', macchinario._id);
+        editButton.addEventListener('click', async () => {
+            const activeModal = document.querySelector('.modal');
+            if (activeModal) {
+                activeModal.remove();
+            }
+
+            const macchinarioId = editButton.getAttribute('data-macchinario-id');
+            try {
+                const response = await fetch(`/dettagli_macchinario/${macchinarioId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const macchinario = await response.json();
+                    mostraModuloModifica(macchinario);
+                } else {
+                    console.error('Errore durante il recupero dei dettagli del macchinario:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Errore durante la richiesta:', error);
+            }
+        });
+        cellModifica.appendChild(editButton);
+
+        const cellElimina = row.insertCell(8);
+        const deleteButton = document.createElement('img');
+        deleteButton.textContent = 'Elimina';
+        deleteButton.src = 'shopping-basket.png';
+        deleteButton.className = 'delete-button';
+        deleteButton.setAttribute('data-macchinario-id', macchinario._id);
+        deleteButton.addEventListener('click', async () => {
+            const confermaEliminazione = confirm('Sei sicuro di voler eliminare questo macchinario?');
+            if (confermaEliminazione) {
+                const macchinarioId = deleteButton.getAttribute('data-macchinario-id');
+                try {
+                    const response = await fetch(`/elimina_macchinario/${macchinarioId}`, {
+                        method: 'DELETE',
+                    });
+                    if (response.status === 200) {
+                        table.deleteRow(row.rowIndex);
+                        console.log('Macchinario eliminato con successo:', macchinario);
+                    } else {
+                        console.error('Si è verificato un errore durante l\'eliminazione del macchinario:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Si è verificato un errore durante la richiesta:', error);
+                }
+            }
+        });
+        cellElimina.appendChild(deleteButton);
+    }
+}
+
+function mostraModuloModifica(macchinario) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const content = `
+        <h2>Modifica Macchinario</h2>
+        <form id="modificaMacchinarioForm">
+            <label for="modifica_nome">Nome:</label>
+            <input type="text" id="modifica_nome" value="${macchinario.nome}"><br>
+            <label for="modifica_matricola">Matricola:</label>
+            <input type="text" id="modifica_matricola" value="${macchinario.matricola}"><br>
+            <label for="modifica_reparto">Reparto:</label>
+            <input type="text" id="modifica_reparto" value="${macchinario.reparto}"><br>
+            <label for="modifica_data_acquisto">Data Acquisto:</label>
+            <input type="date" id="modifica_data_acquisto" value="${macchinario.data_acquisto}"><br>
+            <label for="modifica_stato_manutenzione">Stato Manutenzione:</label>
+            <input type="text" id="modifica_stato_manutenzione" value="${macchinario.stato_manutenzione || ''}"><br>
+            <label for="modifica_fornitore">Fornitore:</label>
+            <input type="text" id="modifica_fornitore" value="${macchinario.fornitore || ''}"><br>
+            <label for="modifica_ultima_manutenzione">Ultima Manutenzione:</label>
+            <input type="date" id="modifica_ultima_manutenzione" value="${macchinario.ultima_manutenzione || ''}"><br>
+            <button type="submit">Salva Modifiche</button>
+        </form>
+    `;
+
+    modal.innerHTML = content;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#modificaMacchinarioForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('modifica_nome').value;
+        const matricola = document.getElementById('modifica_matricola').value;
+        const reparto = document.getElementById('modifica_reparto').value;
+        const data_acquisto = document.getElementById('modifica_data_acquisto').value;
+        const stato_manutenzione = document.getElementById('modifica_stato_manutenzione').value;
+        const fornitore = document.getElementById('modifica_fornitore').value;
+        const ultima_manutenzione = document.getElementById('modifica_ultima_manutenzione').value;
+
+        try {
+            const response = await fetch(`/aggiorna_macchinario/${macchinario._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome, matricola, reparto, data_acquisto, stato_manutenzione, fornitore, ultima_manutenzione
+                }),
+            });
+            if (response.status === 200) {
+                console.log('Macchinario aggiornato con successo');
+                modal.remove();
+                aggiornaMacchinarioNellaLista(macchinario._id, nome, matricola, reparto, data_acquisto, stato_manutenzione, fornitore, ultima_manutenzione);
+            } else {
+                console.error('Si è verificato un errore durante l\'aggiornamento del macchinario:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Si è verificato un errore durante la richiesta:', error);
+        }
+    });
+}
+
+function aggiornaMacchinarioNellaLista(macchinarioId, nome, matricola, reparto, data_acquisto, stato_manutenzione, fornitore, ultima_manutenzione) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const rows = table.rows;
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const id = row.cells[7].querySelector('.edit-button').getAttribute('data-macchinario-id');
+            if (id === macchinarioId) {
+                row.cells[0].textContent = nome;
+                row.cells[1].textContent = matricola;
+                row.cells[2].textContent = reparto;
+                row.cells[3].textContent = data_acquisto;
+                row.cells[4].textContent = stato_manutenzione;
+                row.cells[5].textContent = fornitore;
+                row.cells[6].textContent = ultima_manutenzione;
+                break;
+            }
+        }
+    }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/lista_macchinari', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+            }
+        });
+        const data = await response.json();
+        data.forEach(macchinario => {
+            aggiungiMacchinarioAllaTabella(macchinario);
+        });
+    } catch (error) {
+        console.error('Si è verificato un errore durante il recupero dei macchinari:', error);
+    }
+});
+
+    </script>
+</body>
+</html>

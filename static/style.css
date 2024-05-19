@@ -1,0 +1,155 @@
+/* Reset CSS */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Georgia', serif;
+    background-color: #000;
+    color: #fff;
+}
+
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+    font-size: 32px;
+    margin-top: 0;
+    color: #007bff;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+h3 {
+    font-size: 22px;
+    margin-top: 0;
+    color: #fff;
+}
+
+/* Form Styles */
+form {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-bottom: 12px;
+    color: #aaa;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+button {
+    
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    color: #333;
+    background-color: #ddd;
+    overflow: hidden; /* Aggiunta per limitare il testo all'interno dei pulsanti */
+    text-overflow: ellipsis; /* Aggiunta per mostrare l'ellissi se il testo supera la larghezza del pulsante */
+    white-space: nowrap; /* Aggiunta per impedire il wrapping del testo */
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Grid Layout for Patients */
+#container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.patient {
+    background-color: #333;
+    border: 2px solid #555;
+    border-radius: 6px;
+    padding: 18px;
+}
+
+.delete-button {
+    background-color: #ff4d4d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 24px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+    width: 24px; /* Imposta la larghezza desiderata dell'immagine */
+    height: 24px; /* Imposta l'altezza desiderata dell'immagine */
+}
+
+.delete-button:hover {
+    background-color: #e60000;
+}
+
+.edit-button {
+    background-color: #66ccff;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 24px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+    width: 24px; /* Imposta la larghezza desiderata dell'immagine */
+    height: 24px; /* Imposta l'altezza desiderata dell'immagine */
+
+}
+
+.edit-button:hover {
+    background-color: #0099e6;
+}
+
+
+#Table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#Table th,
+#Table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+#Table th {
+    background-color: #007bff;
+    color: #fff;
+    text-align: left;
+}
+
+#Table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#Table tbody tr:hover {
+    background-color: #ddd;
+}

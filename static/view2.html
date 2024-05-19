@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Ospedale</title>
+</head>
+<body>
+    <!-- Form per la ricerca di un membro del personale per cognome -->
+    <form id="ricercaPersonaleForm">
+        <label for="cognomeRicerca">Cognome :</label>
+        <input type="text" id="cognomeRicerca" name="cognomeRicerca" required>
+        <button type="submit" id="submitRicerca">Ricerca</button>
+    </form>
+
+     <!-- Div per visualizzare il risultato della ricerca -->
+     <div id="risultatoRicerca"></div>
+
+    <h2>Lista Personale</h2>
+        <table id="Table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Cognome</th>
+                    <th>Data di Nascita</th>
+                    <th>Luogo di Nascita</th>
+                    <th>Specializzazione</th>
+                    <th>Reparto</th>
+                    <th>Modifica</th>
+                    <th>Elimina</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Qui verranno aggiunti dinamicamente i membri del personale -->
+            </tbody>
+        </table>
+
+        <!-- Form per la modifica di un membro del personale -->
+        <div id="modificaPersonaleModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Modifica Personale</h2>
+                <form id="modificaPersonaleForm">
+                    <label for="modifica_nome">Nome:</label>
+                    <input type="text" id="modifica_nome" name="modifica_nome" required><br>
+                    <label for="modifica_cognome">Cognome:</label>
+                    <input type="text" id="modifica_cognome" name="modifica_cognome" required><br>
+                    <label for="modifica_data_nascita">Data di Nascita:</label>
+                    <input type="date" id="modifica_data_nascita" name="modifica_data_nascita" required><br>
+                    <label for="modifica_luogo_nascita">Luogo di Nascita:</label>
+                    <input type="text" id="modifica_luogo_nascita" name="modifica_luogo_nascita" required><br>
+                    <label for="modifica_specializzazione">Specializzazione:</label>
+                    <input type="text" id="modifica_specializzazione" name="modifica_specializzazione"><br>
+                    <label for="modifica_reparto">Reparto:</label>
+                    <input type="text" id="modifica_reparto" name="modifica_reparto"><br>
+                    <button type="submit" id="submitModifica">Salva Modifiche</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function aggiungiPersonaleAllaTabella(personale) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const row = table.insertRow(-1);
+
+        const cellNome = row.insertCell(0);
+        cellNome.textContent = personale.nome;
+
+        const cellCognome = row.insertCell(1);
+        cellCognome.textContent = personale.cognome;
+
+        const cellDataNascita = row.insertCell(2);
+        cellDataNascita.textContent = personale.data_nascita;
+
+        const celLuogoNascita = row.insertCell(3);
+        celLuogoNascita.textContent = personale.luogo_nascita;
+
+        const cellSpecializzazione = row.insertCell(4);
+        cellSpecializzazione.textContent = personale.specializzazione;
+
+        const cellReparto = row.insertCell(5);
+        cellReparto.textContent = personale.reparto;
+
+        const cellModifica = row.insertCell(6);
+        const editButton = document.createElement('img');
+        editButton.textContent = 'Modifica';
+        editButton.src = 'pen.png';
+        editButton.className = 'edit-button';
+        editButton.setAttribute('data-personale-id', personale._id);
+        editButton.addEventListener('click', async () => {
+            const activeModal = document.querySelector('.modal');
+            if (activeModal) {
+                activeModal.remove();
+            }
+
+            const personaleId = editButton.getAttribute('data-personale-id');
+            try {
+                const response = await fetch(`/dettagli_personale_medico/${personaleId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const personale = await response.json();
+                    mostraModuloModifica(personale);
+                } else {
+                    console.error('Errore durante il recupero dei dettagli del personale:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Errore durante la richiesta:', error);
+            }
+        });
+        cellModifica.appendChild(editButton);
+
+        const cellElimina = row.insertCell(7);
+        const deleteButton = document.createElement('img');
+        deleteButton.textContent = 'Elimina';
+        deleteButton.src = 'shopping-basket.png';
+        deleteButton.className = 'delete-button';
+        deleteButton.setAttribute('data-personale-id', personale._id);
+        deleteButton.addEventListener('click', async () => {
+            const confermaEliminazione = confirm('Sei sicuro di voler eliminare questo membro del personale?');
+            if (confermaEliminazione) {
+                const personaleId = deleteButton.getAttribute('data-personale-id');
+                try {
+                    const response = await fetch(`/elimina_personale_medico/${personaleId}`, {
+                        method: 'DELETE',
+                    });
+                    if (response.status === 200) {
+                        table.deleteRow(row.rowIndex);
+                        console.log('Membro eliminato con successo:', personale);
+                    } else {
+                        console.error('Si è verificato un errore durante l\'eliminazione del membro del personale:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Si è verificato un errore durante la richiesta:', error);
+                }
+            }
+        });
+        cellElimina.appendChild(deleteButton);
+    }
+}
+
+function mostraModuloModifica(personale) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const content = `
+        <h2>Modifica Personale</h2>
+        <form id="modificaPersonaleForm">
+            <label for="modifica_nome">Nome:</label>
+            <input type="text" id="modifica_nome" value="${personale.nome}"><br>
+            <label for="modifica_cognome">Cognome:</label>
+            <input type="text" id="modifica_cognome" value="${personale.cognome}"><br>
+            <label for="modifica_data_nascita">Data Nascita:</label>
+            <input type="date" id="modifica_data_nascita" value="${personale.data_nascita}"><br>
+            <label for="modifica_luogo_nascita">Luogo Nascita:</label>
+            <input type="text" id="modifica_luogo_nascita" value="${personale.luogo_nascita}"><br>
+            <label for="modifica_specializzazione">Specializzazione:</label>
+            <input type="text" id="modifica_specializzazione" value="${personale.specializzazione || ''}"><br>
+            <label for="modifica_reparto">Reparto:</label>
+            <input type="text" id="modifica_reparto" value="${personale.reparto || ''}"><br>
+            <button type="submit">Salva Modifiche</button>
+        </form>
+    `;
+
+    modal.innerHTML = content;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#modificaPersonaleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('modifica_nome').value;
+        const cognome = document.getElementById('modifica_cognome').value;
+        const data_nascita = document.getElementById('modifica_data_nascita').value;
+        const luogo_nascita = document.getElementById('modifica_luogo_nascita').value;
+        const specializzazione = document.getElementById('modifica_specializzazione').value;
+        const reparto = document.getElementById('modifica_reparto').value;
+
+        try {
+            const response = await fetch(`/aggiorna_personale_medico/${personale._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome, cognome, data_nascita, luogo_nascita, specializzazione, reparto
+                }),
+            });
+            if (response.status === 200) {
+                console.log('Personale aggiornato con successo');
+                modal.remove();
+                aggiornaPersonaleNellaLista(personale._id, nome, cognome, data_nascita, luogo_nascita, specializzazione, reparto);
+            } else {
+                console.error('Si è verificato un errore durante l\'aggiornamento del personale:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Si è verificato un errore durante la richiesta:', error);
+        }
+    });
+}
+
+function aggiornaPersonaleNellaLista(personaleId, nome, cognome, data_nascita, luogo_nascita, specializzazione, reparto) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const rows = table.rows;
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const id = row.cells[6].querySelector('.edit-button').getAttribute('data-personale-id');
+            if (id === personaleId) {
+                row.cells[0].textContent = nome;
+                row.cells[1].textContent = cognome;
+                row.cells[2].textContent = data_nascita;
+                row.cells[3].textContent = luogo_nascita;
+                row.cells[4].textContent = specializzazione;
+                row.cells[5].textContent = reparto;
+                break;
+            }
+        }
+    }
+}
+
+document.getElementById('ricercaPersonaleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cognomeRicerca = document.getElementById('cognomeRicerca').value;
+
+    try {
+        const response = await fetch(`/ricerca_personale_medico?cognome=${cognomeRicerca}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            const personale = await response.json();
+            // Visualizza il risultato della ricerca
+            visualizzaRisultatoRicerca(personale);
+        } else {
+            console.error('Errore durante la ricerca del personale:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+    }
+});
+
+function visualizzaRisultatoRicerca(personale) {
+    const risultatoRicerca = document.getElementById('risultatoRicerca');
+    if (personale.length > 0) {
+        risultatoRicerca.innerHTML = `
+            <h2>Risultato della ricerca</h2>
+            ${personale.map(personale => `
+                <div>
+                    <p>Nome: ${personale.nome}</p>
+                    <p>Cognome: ${personale.cognome}</p>
+                    <p>Data di Nascita: ${personale.data_nascita}</p>
+                    <p>Luogo di Nascita: ${personale.luogo_nascita}</p>
+                    <p>Specializzazione: ${personale.specializzazione}</p>
+                    <p>Reparto: ${personale.reparto}</p>
+                </div>
+            `).join('')}
+        `;
+    } else {
+        risultatoRicerca.innerHTML = '<p>Nessun membro trovato.</p>';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/lista_personale_medico', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+            }
+        });
+        const data = await response.json();
+        data.forEach(personale => {
+            aggiungiPersonaleAllaTabella(personale);
+        });
+    } catch (error) {
+        console.error('Si è verificato un errore durante il recupero del personale:', error);
+    }
+});
+    </script>
+</body>
+</html>

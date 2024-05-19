@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ospedale</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div id="Registrazione">
+      <h1>Registrazione:</h1>
+      <div class="category-buttons">
+        <button id="RegistrazionePazientiButton">Registra Pazienti</button>
+        <button id="RegistrazionePersonaleMedicoButton">Registra Personale Medico</button>
+        <button id="RegistrazioneMacchinariButton">Registra Macchinari</button>
+  
+      </div>
+    </div>
+  <div id="Visualizza">
+    <h1>Visualizza:</h1>
+    <div class="category-buttons">
+      <button id="PazientiButton">Visualizza Pazienti</button>
+      <button id="PersonaleMedicoButton">Visualizza Personale Medico</button>
+      <button id="MacchinariButton">Visualizza Macchinari</button>
+
+    </div>
+  </div> 
+  </div>
+
+  <script >
+    // Ottieni i riferimenti ai pulsanti
+    const pazientiButton = document.getElementById('RegistrazionePazientiButton');
+    const personaleMedicoButton = document.getElementById('RegistrazionePersonaleMedicoButton');
+    const macchinariButton = document.getElementById('RegistrazioneMacchinariButton');
+
+    const VisualizzaPazientiButton = document.getElementById('PazientiButton');
+    const VisualizzaPersonaleMedicoButton = document.getElementById('PersonaleMedicoButton');
+    const VisualizzaMacchinariButton = document.getElementById('MacchinariButton');
+    // Aggiungi un gestore di eventi al pulsante dei pazienti
+    pazientiButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante dei pazienti viene cliccato
+        window.location.href = "index.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+
+        // Aggiungi qui il codice per gestire il click sul pulsante Pazienti
+        
+    });
+
+    // Aggiungi un gestore di eventi al pulsante del personale medico
+    personaleMedicoButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante del personale medico viene cliccato
+        window.location.href = "index2.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+        // Aggiungi qui il codice per gestire il click sul pulsante Personale Medico
+    });
+
+     // Aggiungi un gestore di eventi al pulsante dei pazienti
+     macchinariButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante dei macchinari viene cliccato
+        window.location.href = "index3.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+        // Aggiungi qui il codice per gestire il click sul pulsante Pazienti
+    });
+
+    VisualizzaPazientiButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante dei pazienti viene cliccato
+        window.location.href = "view.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+
+        // Aggiungi qui il codice per gestire il click sul pulsante Pazienti
+        
+    });
+    VisualizzaPersonaleMedicoButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante dei pazienti viene cliccato
+        window.location.href = "view2.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+
+        // Aggiungi qui il codice per gestire il click sul pulsante Pazienti
+        
+    });
+    VisualizzaMacchinariButton.addEventListener('click', function() {
+        // Azioni da eseguire quando il pulsante dei pazienti viene cliccato
+        window.location.href = "view3.html"; // Sostituisci "pagina_pazienti.html" con l'URL della pagina verso cui vuoi reindirizzare l'utente
+
+        // Aggiungi qui il codice per gestire il click sul pulsante Pazienti
+        
+    });
+  </script>
+</body>
+</html>

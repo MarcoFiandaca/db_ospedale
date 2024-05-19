@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Ospedale</title>
+</head>
+<body>
+      <!-- Form per la ricerca di un paziente per cognome -->
+      <form id="ricercaPazienteForm">
+        <label for="cognomeRicerca">Cognome Paziente:</label>
+        <input type="text" id="cognomeRicerca" name="cognomeRicerca" required>
+        <button type="submit" id="submitRicerca">Ricerca</button>
+    </form>
+
+     <!-- Div per visualizzare il risultato della ricerca -->
+     <div id="risultatoRicerca"></div>
+
+    <h2>Lista pazienti</h2>
+        <table id="Table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Cognome</th>
+                    <th>Data di Nascita</th>
+                    <th>Luogo di Nascita</th>
+                    <th>Data Ricovero</th>
+                    <th>Data Dimissione</th>
+                    <th>Reparto</th>
+                    <th>Modifica</th>
+                    <th>Elimina</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Qui verranno aggiunti dinamicamente i pazienti -->
+            </tbody>
+        </table>
+         <!-- Form per la modifica di un paziente -->
+         <div id="modificaPazienteModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Modifica Paziente</h2>
+                <form id="modificaPazienteForm">
+                    <label for="modifica_nome">Nome:</label>
+                    <input type="text" id="modifica_nome" name="modifica_nome" required><br>
+                    <label for="modifica_cognome">Cognome:</label>
+                    <input type="text" id="modifica_cognome" name="modifica_cognome" required><br>
+                    <label for="modifica_data_nascita">Data di Nascita:</label>
+                    <input type="date" id="modifica_data_nascita" name="modifica_data_nascita" required><br>
+                    <label for="modifica_luogo_nascita">Luogo di Nascita:</label>
+                    <input type="text" id="modifica_luogo_nascita" name="modifica_luogo_nascita" required><br>
+                    <label for="modifica_data_ricovero">Data Ricovero:</label>
+                    <input type="date" id="modifica_data_ricovero" name="modifica_data_ricovero"><br>
+                    <label for="modifica_data_dimissione">Data Dimissione:</label>
+                    <input type="date" id="modifica_data_dimissione" name="modifica_data_dimissione"><br>
+                    <label for="modifica_reparto">Reparto:</label>
+                    <input type="text" id="modifica_reparto" name="modifica_reparto"><br>
+                    <button type="submit" id="submitModifica">Salva Modifiche</button>
+                </form>
+            </div>
+        </div>
+
+    </div> <script
+    >// Funzione per aggiungere un paziente alla tabella
+function aggiungiPazienteAllaTabella(paziente) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const row = table.insertRow(-1);
+
+        const cellNome = row.insertCell(0);
+        cellNome.textContent = paziente.nome;
+
+        const cellCognome = row.insertCell(1);
+        cellCognome.textContent = paziente.cognome;
+
+        const cellDataNascita = row.insertCell(2);
+        cellDataNascita.textContent = paziente.data_nascita;
+
+        const celLuogoNascita = row.insertCell(3);
+        celLuogoNascita.textContent = paziente.luogo_nascita;
+
+        const cellDataRicovero = row.insertCell(4);
+        cellDataRicovero.textContent = paziente.data_ricovero || '';
+
+        const cellDataDimissione = row.insertCell(5);
+        cellDataDimissione.textContent = paziente.data_dimissione || '';
+
+        const cellReparto = row.insertCell(6);
+        cellReparto.textContent = paziente.reparto || '';
+
+        const cellModifica = row.insertCell(7);
+        const editButton = document.createElement('img');
+                editButton.src = 'pen.png'; // Sostituisci 'path_to_your_edit_image' con il percorso dell'immagine per la modifica
+                editButton.alt = 'Modifica';
+        editButton.className = 'edit-button';
+        editButton.setAttribute('data-paziente-id', paziente._id);
+        editButton.addEventListener('click', async () => {
+            const activeModal = document.querySelector('.modal');
+            if (activeModal) {
+                activeModal.remove();
+            }
+
+            const pazienteId = editButton.getAttribute('data-paziente-id');
+            try {
+                const response = await fetch(`/dettagli_paziente/${pazienteId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const paziente = await response.json();
+                    mostraModuloModifica(paziente);
+                } else {
+                    console.error('Errore durante il recupero dei dettagli del paziente:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Errore durante la richiesta:', error);
+            }
+        });
+        cellModifica.appendChild(editButton);
+
+        const cellElimina = row.insertCell(8);
+        const deleteButton = document.createElement('img');
+        deleteButton.src = 'shopping-basket.png';
+        deleteButton.className = 'delete-button';
+        deleteButton.alt = 'Elimina';
+        deleteButton.setAttribute('data-paziente-id', paziente._id);
+        deleteButton.addEventListener('click', async () => {
+            const confermaEliminazione = confirm('Sei sicuro di voler eliminare questo paziente?');
+            if (confermaEliminazione) {
+                const pazienteId = deleteButton.getAttribute('data-paziente-id');
+                try {
+                    const response = await fetch(`/elimina_paziente/${pazienteId}`, {
+                        method: 'DELETE',
+                    });
+                    if (response.status === 200) {
+                        table.deleteRow(row.rowIndex);
+                        console.log('Paziente eliminato con successo:', paziente);
+                    } else {
+                        console.error('Si è verificato un errore durante l\'eliminazione del paziente:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Si è verificato un errore durante la richiesta:', error);
+                }
+            }
+        });
+        cellElimina.appendChild(deleteButton);
+    }
+}
+
+// Funzione per mostrare il modulo di modifica
+function mostraModuloModifica(paziente) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const content = `
+        <h2>Modifica Paziente</h2>
+        <form id="modificaPazienteForm">
+            <label for="modifica_nome">Nome:</label>
+            <input type="text" id="modifica_nome" value="${paziente.nome}"><br>
+            <label for="modifica_cognome">Cognome:</label>
+            <input type="text" id="modifica_cognome" value="${paziente.cognome}"><br>
+            <label for="modifica_data_nascita">Data Nascita:</label>
+            <input type="date" id="modifica_data_nascita" value="${paziente.data_nascita}"><br>
+            <label for="modifica_luogo_nascita">Luogo Nascita:</label>
+            <input type="text" id="modifica_luogo_nascita" value="${paziente.luogo_nascita}"><br>
+            <label for="modifica_data_ricovero">Data Ricovero:</label>
+            <input type="date" id="modifica_data_ricovero" value="${paziente.data_ricovero || ''}"><br>
+            <label for="modifica_reparto">Reparto:</label>
+            <input type="text" id="modifica_reparto" value="${paziente.reparto || ''}"><br>
+            <label for="modifica_data_dimissione">Data Dimissione:</label>
+            <input type="date" id="modifica_data_dimissione" value="${paziente.data_dimissione || ''}"><br>
+            <button type="submit">Salva Modifiche</button>
+        </form>
+    `;
+
+    modal.innerHTML = content;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#modificaPazienteForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('modifica_nome').value;
+        const cognome = document.getElementById('modifica_cognome').value;
+        const data_nascita = document.getElementById('modifica_data_nascita').value;
+        const luogo_nascita = document.getElementById('modifica_luogo_nascita').value;
+        const data_ricovero = document.getElementById('modifica_data_ricovero').value;
+        const reparto = document.getElementById('modifica_reparto').value;
+        const data_dimissione = document.getElementById('modifica_data_dimissione').value;
+
+        try {
+            const response = await fetch(`/aggiorna_paziente/${paziente._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome, cognome,data_nascita, luogo_nascita, data_ricovero, reparto, data_dimissione
+                }),
+            });
+            if (response.status === 200) {
+                console.log('Paziente aggiornato con successo');
+                modal.remove();
+                aggiornaPazienteNellaLista(paziente._id, nome, cognome, data_nascita, luogo_nascita, data_ricovero, data_dimissione, reparto);
+            } else {
+                console.error('Si è verificato un errore durante l\'aggiornamento del paziente:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Si è verificato un errore durante la richiesta:', error);
+        }
+    });
+}
+
+function aggiornaPazienteNellaLista(pazienteId, nome, cognome, data_nascita, luogo_nascita, data_ricovero, data_dimissione, reparto) {
+    const table = document.getElementById("Table");
+    if (table) {
+        const rows = table.rows;
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const id = row.cells[7].querySelector('.edit-button').getAttribute('data-paziente-id');
+            if (id === pazienteId) {
+                row.cells[0].textContent = nome;
+                row.cells[1].textContent = cognome;
+                row.cells[2].textContent = data_nascita;
+                row.cells[3].textContent = luogo_nascita;
+                row.cells[4].textContent = data_ricovero;
+                row.cells[5].textContent = data_dimissione;
+                row.cells[6].textContent = reparto;
+
+                break;
+            }
+        }
+    }
+}
+
+
+document.getElementById('ricercaPazienteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cognomeRicerca = document.getElementById('cognomeRicerca').value;
+
+    try {
+        const response = await fetch(`/ricerca_paziente?cognome=${cognomeRicerca}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            const paziente = await response.json();
+            // Visualizza il risultato della ricerca
+            visualizzaRisultatoRicerca(paziente);
+        } else {
+            console.error('Errore durante la ricerca del paziente:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+    }
+});
+
+function visualizzaRisultatoRicerca(pazienti) {
+    const risultatoRicerca = document.getElementById('risultatoRicerca');
+    if (pazienti.length > 0) {
+        risultatoRicerca.innerHTML = `
+            <h2>Risultato della ricerca</h2>
+            ${pazienti.map(paziente => `
+                <div>
+                    <p>Nome: ${paziente.nome}</p>
+                    <p>Cognome: ${paziente.cognome}</p>
+                    <p>Data di Nascita: ${paziente.data_nascita}</p>
+                    <p>Luogo di Nascita: ${paziente.luogo_nascita}</p>
+                    <p>Data Ricovero: ${paziente.data_ricovero}</p>
+                    <p>Data Dimissione: ${paziente.data_dimissione}</p>
+                    <p>Reparto: ${paziente.reparto}</p>
+                </div>
+            `).join('')}
+        `;
+    } else {
+        risultatoRicerca.innerHTML = '<p>Nessun paziente trovato.</p>';
+    }
+}
+
+
+
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/lista_pazienti', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+            }
+        });
+        const data = await response.json();
+        data.forEach(paziente => {
+            aggiungiPazienteAllaTabella(paziente);
+        });
+    } catch (error) {
+        console.error('Si è verificato un errore durante il recupero dei pazienti:', error);
+    }
+});
+</script>
+
+</body>
+</html>
